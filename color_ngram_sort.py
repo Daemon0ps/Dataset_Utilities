@@ -1,7 +1,7 @@
 import os,sys
 import cv2
 import numpy as np
-from PIL import Image,ImageFile,ImageOps,ImageFilter
+from PIL import Image,ImageFile,ImageOps,Palette
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 Image.MAX_IMAGE_PIXELS = None
@@ -25,7 +25,7 @@ def main(img_files, i_f):
     md5_calc = str(hashlib.md5(img_buf).hexdigest())
     pil_arr = cv2.blur(img,(10,10))
     img_thumb = ImageOps.contain(Image.fromarray(cv2.cvtColor(pil_arr ,cv2.COLOR_BGR2RGB)),(w,h))
-    img_conv = img_thumb.convert(mode="RGB",palette=Image.ADAPTIVE,colors=256).convert(mode="RGBA")
+    img_conv = img_thumb.convert(mode="RGB",palette=Palette.ADAPTIVE,colors=256).convert(mode="RGBA")
     ifin = cv2.cvtColor(np.array(img_conv),cv2.COLOR_RGB2BGR)
     pil_arr = cv2.cvtColor(np.array(cv2.blur(ifin,(3,3))), cv2.COLOR_BGR2RGB)
     img_arr = np.array(pil_arr).astype('uint8')
