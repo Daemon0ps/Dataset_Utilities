@@ -15,6 +15,7 @@ classmates_yearbooks.py
   hehehehe
 
 color_ngram_sort.py
+
   i accidentally copied about 300k images from multiple post-processing sources together, 
   but i pondered what i would do if they all werent backed up these were all lossy JPGs and MD5s don't match even though nearly identical, 
   so i wrote a python script to blur everything slightly, contain the images to a (64,64) pixel size constraint, 
