@@ -9,7 +9,6 @@ from tqdm import tqdm
 import pandas as pd
 import hashlib
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from math import ceil
 
