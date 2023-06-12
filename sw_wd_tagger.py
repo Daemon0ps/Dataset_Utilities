@@ -1,19 +1,3 @@
-#Threaded -- tested on AMD Ryzen 9 5950X + "SanDisk PRO-BLADE SCSI" NVME
-
-# vit = ~65 it/s
-# moat = ~45 it/s
-# swinv2 = ~33 it/s
-# convnext = ~50 it/s
-# convnextv2 = ~45 it/s
-
-# https://note.com/kohya_ss/n/nbf7ce8d80f29
-#https://huggingface.co/SmilingWolf
-# - [SmilingWolf/wd-v1-4-moat-tagger-v2](https://huggingface.co/SmilingWolf/wd-v1-4-moat-tagger-v2)
-# - [SmilingWolf/wd-v1-4-swinv2-tagger-v2](https://huggingface.co/SmilingWolf/wd-v1-4-convnext-tagger-v2)
-# - [SmilingWolf/wd-v1-4-convnext-tagger-v2](https://huggingface.co/SmilingWolf/wd-v1-4-convnext-tagger-v2)
-# - [SmilingWolf/wd-v1-4-convnextv2-tagger-v2](https://huggingface.co/SmilingWolf/wd-v1-4-convnextv2-tagger-v2)
-# - [SmilingWolf/wd-v1-4-vit-tagger-v2](https://huggingface.co/SmilingWolf/wd-v1-4-vit-tagger-v2)
-
 from __future__ import annotations
 import os
 import cv2
@@ -28,7 +12,6 @@ import numpy as np
 import onnxruntime as rt
 import pandas as pd
 import keyring
-from time import sleep
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from termcolor import cprint
@@ -50,28 +33,34 @@ MODEL_FILENAME = "model.onnx"
 LABEL_FILENAME = "selected_tags.csv"
 EP_LIST = ['CUDAExecutionProvider']
 GEN_THRESH:float = 0.35
-
+IMG_TYPES = [
+            'blp', 'bmp', 'dib', 'bufr', 'cur'
+            , 'pcx', 'dcx', 'dds', 'ps', 'eps'
+            , 'fit', 'fits', 'fli', 'flc', 'ftc'
+            , 'ftu', 'gbr', 'gif', 'grib', 'h5'
+            , 'hdf', 'png', 'apng', 'jp2', 'j2k'
+            , 'jpc', 'jpf', 'jpx', 'j2c', 'icns'
+            , 'ico', 'im', 'iim', 'tif', 'tiff'
+            , 'jfif', 'jpe', 'jpg', 'jpeg', 'mpg'
+            , 'mpeg', 'mpo', 'msp', 'palm', 'pcd'
+            , 'pxr', 'pbm', 'pgm', 'ppm', 'pnm'
+            , 'psd', 'bw', 'rgb', 'rgba', 'sgi'
+            , 'ras', 'tga', 'icb', 'vda', 'vst'
+            , 'webp', 'wmf', 'emf', 'xbm', 'xpm'
+            ,'nef'
+            ]
 @staticmethod
-def cp_g(x): 
-    try:
-        cs =  cprint(x, "green",end="")
-        return cs
-    except Exception as e:pass
-    finally:pass
+def cp_g(x:str)->str: 
+    cs =  cprint(x, "green",end="")
+    return cs
 @staticmethod    
-def cp_y(x): 
-    try:
-        cs =  cprint(x, "yellow",end="")
-        return cs
-    except Exception as e:pass
-    finally:pass
+def cp_y(x:str)->str: 
+    cs =  cprint(x, "yellow",end="")
+    return cs
 @staticmethod
-def cp_c(x): 
-    try:
-        cs =  cprint(x, "cyan",end="")
-        return cs
-    except Exception as e:pass
-    finally:pass
+def cp_c(x:str)->str: 
+    cs =  cprint(x, "cyan",end="")
+    return cs
 
 def load_model(model_repo: str, model_filename: str) -> rt.InferenceSession:
     path = huggingface_hub.hf_hub_download(
@@ -87,10 +76,17 @@ def load_labels() -> list[str]:
     general_indexes = list(np.where(df["category"] == 0)[0])
     return tag_names,general_indexes
 
-def txt_write(t_name,tags):
-    with open(t_name,"wt") as fi:
-        fi.write(tags)
-        fi.close
+def prep_txt(t_name):
+    if not os.path.isfile(t_name):
+        with open(t_name,"wt") as fi:
+            fi.write(str(""))
+            fi.close
+
+def txt_write(t_name:str,tags:str):
+    if os.path.isfile(t_name):
+        with open(t_name,"a") as fi:
+            fi.write(str(", ")+ tags)
+            fi.close
 
 def model_pred(
                 image
@@ -109,16 +105,14 @@ def model_pred(
     general_res = dict(general_res)
     b = dict(sorted(general_res.items(), key=lambda item: item[1], reverse=True))
     a = ",".join(list(b.keys())).replace("_", " ").replace("(", "\(").replace(")", "\)")
-    c = ", ".join(list(b.keys()))
     txt_write(t_name,a)
 
 def img_proc(i):
-    img = Image.open(i).convert("RGBA")
-    new_img = Image.new("RGBA", img.size, "WHITE")
-    new_img.paste(img, mask=img)
-    img = new_img.convert("RGB")
-    img = np.asarray(img)
-    img = img[:, :, ::-1]
+    cv_img = cv2.imread(i,cv2.IMREAD_UNCHANGED)
+    cv_img = cv2.cvtColor(np.array(cv_img), cv2.COLOR_BGR2RGBA)
+    trans_mask = cv_img[:,:,3] == 0
+    cv_img[trans_mask] = [255, 255, 255, 255]
+    img = cv2.cvtColor(cv_img, cv2.COLOR_BGRA2RGB)
     size = max(img.shape[0:2])
     pad_x = size - img.shape[1]
     pad_y = size - img.shape[0]
@@ -133,10 +127,10 @@ def img_proc(i):
 
 def predict(
             i
-            ,t_name:str
-            ,general_threshold: float
-            ,tag_names: list[str]
-            ,general_indexes: list[np.int64]
+            ,t_name
+            ,general_threshold
+            ,tag_names
+            ,general_indexes
             ,model
             ):
     image = img_proc(i)
@@ -169,7 +163,6 @@ def main():
     cp_g("Model Name: ")
     cp_y(str(model_name))
     print("")
-    img_types = [str(f).replace('.','') for f,u in Image.registered_extensions().items()]
     cp_g("General Tags Threshold: ")
     cp_y(str(args.gen_thresh))
     print("")
@@ -181,12 +174,11 @@ def main():
     if list_gen == "walk":
         for r, d, f in os.walk(file_path[:-1:]):
             for file in f:
-                if ((file[-(file[::-1].find('.')):]).lower()) in img_types:
+                if ((file[-(file[::-1].find('.')):]).lower()) in IMG_TYPES:
                     file_list.append(os.path.join(r, file))
     elif list_gen == "list":
         file_list = [file_path+f for f in os.listdir(file_path[:-1:]) if os.path.isfile(file_path+f) \
-                    and f[-(f[::-1].find('.')):] in[str(f).replace('.','') \
-                    for f,u in Image.registered_extensions().items()]]
+                    and f[-(f[::-1].find('.')):] in IMG_TYPES]
     tag_names, general_indexes = load_labels()
     if model_name == "moat":
         model = load_model(MOAT_MODEL_REPO, MODEL_FILENAME)
@@ -201,8 +193,21 @@ def main():
     l_bar='{desc}: {percentage:3.0f}%|'
     r_bar='| {n_fmt}/{total_fmt} [elapsed: {elapsed} / Remaining: {remaining}] '
     bar = '{rate_fmt}{postfix}]'
-    with ThreadPoolExecutor(8) as executor:       
-        status_bar = tqdm(total=len(file_list), desc='Image_Tagging',bar_format=cp_c(f'{l_bar}{bar}{r_bar}'),colour='#6495ED')
+
+    with ThreadPoolExecutor(16) as executor:       
+        status_bar = tqdm(total=len(file_list), desc='Image Tagging',bar_format=cp_c(f'{l_bar}{bar}{r_bar}'),colour='#6495ED')
+        futures = [
+            executor.submit(
+                prep_txt
+                ,i[:(len(i))-1-len(i[-(i[::-1].find('.')):])]+".txt" 
+                )
+            for i in file_list]
+        for _ in as_completed(futures):
+            status_bar.update(n=1)
+        status_bar.close()
+
+    with ThreadPoolExecutor(16) as executor:       
+        status_bar = tqdm(total=len(file_list), desc='Image Tagging',bar_format=cp_c(f'{l_bar}{bar}{r_bar}'),colour='#6495ED')
         futures = [
             executor.submit(
                 predict
