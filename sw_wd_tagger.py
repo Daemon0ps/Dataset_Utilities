@@ -22,6 +22,7 @@ print(str(cuda_check))
 print("")
 assert cuda_check == str("GPU")
 
+PROCESS_THREADS = 8
 IMAGE_SIZE = 448
 HF_TOKEN = keyring.get_password("hf","hf_key")
 MOAT_MODEL_REPO = "SmilingWolf/wd-v1-4-moat-tagger-v2"
@@ -148,7 +149,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("file_path", type=str, default=None, help="File Path")
     parser.add_argument("--gen_thresh", type=float, default=0.35, help="General Tags Threshold - default: 0.35")
-    parser.add_argument("--model_name", type=str, default="ViT", help="MOAT,SwinV2,ConvNext,ConvNextV2,ViT - default:ViT")
+    parser.add_argument("--model_name", type=str, default="ViT", help="MOAT,SwinV2,ConvNext,ConvNextV2,ViT - default: ViT")
+    parser.add_argument("--process_threads", type=int, default="8", help="Number of Process Threads for ThreadPoolExecutor - default: 8")
     parser.add_argument("--list_gen", type=str, default="list", help="[WALK] - all files in subdirs, [LIST] all files in ListDir directory - default: LIST")
     args = parser.parse_args()
     file_list=[]
@@ -194,7 +196,7 @@ def main():
     r_bar='| {n_fmt}/{total_fmt} [elapsed: {elapsed} / Remaining: {remaining}] '
     bar = '{rate_fmt}{postfix}]'
 
-    with ThreadPoolExecutor(16) as executor:       
+    with ThreadPoolExecutor(args.process_threads) as executor:       
         status_bar = tqdm(total=len(file_list), desc='Image Tagging',bar_format=cp_c(f'{l_bar}{bar}{r_bar}'),colour='#6495ED')
         futures = [
             executor.submit(
@@ -206,7 +208,7 @@ def main():
             status_bar.update(n=1)
         status_bar.close()
 
-    with ThreadPoolExecutor(16) as executor:       
+    with ThreadPoolExecutor(args.process_threads) as executor:       
         status_bar = tqdm(total=len(file_list), desc='Image Tagging',bar_format=cp_c(f'{l_bar}{bar}{r_bar}'),colour='#6495ED')
         futures = [
             executor.submit(
