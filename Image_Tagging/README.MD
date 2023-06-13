@@ -1,9 +1,15 @@
 # Image Tagging Utilities
 
-[Image Tag Generation](https://github.com/Daemon0ps/Dataset_Utilities/blob/main/Image_Tagging/sw_wd_tagger.py) - Uses and based on SmilingWolf's WD 1.4 V2 Image Tagging Models, also shout-out to kohya_ss for eloquent image handling snippets
-[Move/Copy Keywords](https://github.com/Daemon0ps/Dataset_Utilities/blob/main/Image_Tagging/keyword_move_copy.py) - Moves or copies image files by searching .TXT, .CAP, or IPTC information (To do: 0x9286 UserComment / 0x9c9e XPKeywords parsing, raw utf-16-le array slicing)
-[IPTC Move Keywords](https://github.com/Daemon0ps/Dataset_Utilities/blob/main/Image_Tagging/iptc_move_keywords.py) - Moves/Copies files based on keywords found in the IPTC Keywords values
-[Unique Keywords List](https://github.com/Daemon0ps/Dataset_Utilities/blob/main/Image_Tagging/unique_keywords_list.py) - Really simple
+[Image Tag Generation](https://github.com/Daemon0ps/Dataset_Utilities/blob/main/Image_Tagging/sw_wd_tagger.py)
+  Uses and based on SmilingWolf's WD 1.4 V2 Image Tagging Models, also shout-out to kohya_ss for eloquent image handling snippets
+
+[Move/Copy Keywords](https://github.com/Daemon0ps/Dataset_Utilities/blob/main/Image_Tagging/keyword_move_copy.py)
+  Moves or copies image files by searching .TXT, .CAP, or IPTC information (To do: 0x9286 UserComment / 0x9c9e XPKeywords parsing, raw utf-16-le array slicing)
+
+[IPTC Move Keywords](https://github.com/Daemon0ps/Dataset_Utilities/blob/main/Image_Tagging/iptc_move_keywords.py)
+  Moves/Copies files based on keywords found in the IPTC Keywords values
+[Unique Keywords List](https://github.com/Daemon0ps/Dataset_Utilities/blob/main/Image_Tagging/unique_keywords_list.py)
+  Really simple Unique Keyword List generation from TXT files.
 
 ## Getting Started
 
