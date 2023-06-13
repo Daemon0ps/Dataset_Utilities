@@ -1,57 +1,26 @@
-# ML Dataset_Utilities
 
-PIL_contain_MD5_savename.py
------Resize and Save as MD5
------PIL.ImageOps.contain()  and save with MD5 hashlib calculation
+# ML Dataset Utilities
 
-PIL_contain_threaded.py
------Resize and Save - PIL.ImageOps.contain() - multi-thread
-  
-bing_dl_tags_v3.py
------download bing images by keyword(s), and save titles/meta data as .txt files
------Also extracts keyframes from video files
-  
-classmates_yearbooks.py
------hehehehe
+Various useful ML Dataset Utilities, for Diffusion, LLMs, etc.
 
-color_ngram_sort.py
-
------i accidentally copied about 300k images from multiple post-processing sources together, 
------but i pondered what i would do if they all werent backed up these were all lossy JPGs and MD5s don't match even though nearly identical, 
------so i wrote a python script to blur everything slightly, contain the images to a (64,64) pixel size constraint, 
------sliced the array to (-1,4)
------converted the rgba values into hex values then joined the array into a string of 4,096 hex "words", 
------then tokenized them and used tf-idf to rank the word cluster frequencies then rename for the top 10 sorted words + md5 + zfill(4)
------good for finding duplicate pictures with different MD5s, or like-pictures
-
-colormod.py
------just a bunch of color functions for text output
-
-heic_to_JPG.py
------I really dislike Apple.
-
-txt_to_IPTC.py
------write .TXT tags to IPTC, allows for Windows Explorer searching for tags/keywords
-  
-iptc_to_txt.py
------IPTC to .TXT files
-
-keyword_move_copy.py
------move/copy files based on keywords
-
-move_video_frames_to_dirs.py
------use FFMPEG to extract keyframes, then run this to create directories and move the images to a folder with the video file name
-
-outlook_msg_parse_to_mssql.py
------WIP - parse outlook messages, and save email metadata
------will be adding Summarization functions later
-
-unique_keywords_list.py
------simple directory search for TXT, save all keywords, and output an ordered unique-only list
-
-whisper_transcription.py
------uses OpenAI Whisper to transcribe, saves to .TXT / .JSON
+* [Bing Image Downloader](https://github.com/Daemon0ps/Dataset_Utilities/tree/main/Bing_Downloader_with_Tags) - Script to download images from Bing, and save the Title/Metadata as a TXT file. Also parses videos and extracts Key-Frames.
+* [IPTC / EXIF Utilities](https://github.com/Daemon0ps/Dataset_Utilities/tree/main/IPTC_EXIF) - Utilies for IPTC/EXIF: IPTC to .TXT, .TXT to IPTC, etc.
+* [Image Manipulation](https://github.com/Daemon0ps/Dataset_Utilities/tree/main/Image_Manipulation) - Resizing, Renaming
+* [Image Sorting](https://github.com/Daemon0ps/Dataset_Utilities/tree/main/Image_Sorting) - Script for sorting images based on TF-IDF vectorization of pixel clusters. Finds identical / similar images. Turns pixels in a 6-Character hex "Word", tokenizes, and renames the files based on the TF-IDF rankings.
+* [Image Tagging](https://github.com/Daemon0ps/Dataset_Utilities/tree/main/Image_Tagging) - Rewrite to utilize SmilingWolf's WD 1.4 V2 Tagging Models. ~65-70 it/s Image Tagging. Work in Progress. Just wrote it last night (2023-06-11)
+* [Outlook MSG Parsing -> MSSQL](https://github.com/Daemon0ps/Dataset_Utilities/tree/main/Outlook_MSG_Parsing) - Parsing Outlook .MSG files, extracting information, and inserting into an MS-SQL Server. Includes the MSSQL Query for creating the Tables. Work in Progress. To be added: Summarization, better email/entity recognition, better address/phone number recognition, Chronological Plot Summaries.
+* [Whisper Transcription](https://github.com/Daemon0ps/Dataset_Utilities/tree/main/Transcription) - Custom script to generate TXT/JSON files by running OpenAI's Whisper Transcription Models.
+* [WIP_All_In_One](https://github.com/Daemon0ps/Dataset_Utilities/tree/main/WIP_All_In_One) - HC SVNT DRACONES 
+* [CPrint Functions for Colours](https://github.com/Daemon0ps/Dataset_Utilities/tree/main/Colormod_CPrint_Functions) - Importable group of colour functions for using CPrint, eg:  cp_y("Yellow")  cp_r("Red")
 
 
-WIP - Utility Script / Menu Modules 
------(personal all-in-one to stop editing hundreds of scripts all the time, and make dataset management easier)
+## License
+
+shrug
+
+## Acknowledgments
+
+* [SmilingWolf](https://huggingface.co/SmilingWolf) - SmilingWolf for the awesome Tagging Models and generation scripts
+* [kohya_ss](https://note.com/kohya_ss) - 機械学習のインスピレーション
+* [AUTOMATIC1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) - 機械学習のインスピレーション
+
